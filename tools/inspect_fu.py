@@ -1,0 +1,68 @@
+import urllib.request, json, websocket, time, subprocess
+
+EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+TARGET_URL = "http://10.3.11.78:8080/"
+DEBUG_PORT = 9278
+
+proc = subprocess.Popen([
+    EDGE_PATH, "--headless", f"--remote-debugging-port={DEBUG_PORT}",
+    "--remote-allow-origins=*", "about:blank"
+], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+time.sleep(2.0)
+
+req = urllib.request.Request(f"http://127.0.0.1:{DEBUG_PORT}/json")
+targets = json.loads(urllib.request.urlopen(req).read().decode())
+ws_url = [t["webSocketDebuggerUrl"] for t in targets if t.get("type") == "page"][0]
+ws = websocket.create_connection(ws_url)
+
+msg_id = 1
+def send(method, params=None):
+    global msg_id
+    cur_id = msg_id
+    ws.send(json.dumps({"id": cur_id, "method": method, "params": params or {}}))
+    msg_id += 1
+    while True:
+        res = json.loads(ws.recv())
+        if res.get("id") == cur_id:
+            return res
+
+send("Page.enable")
+send("Runtime.enable")
+send("Debugger.enable")
+send("Debugger.setPauseOnExceptions", {"state": "uncaught"})
+send("Page.navigate", {"url": TARGET_URL})
+
+while True:
+    raw = ws.recv()
+    msg = json.loads(raw)
+    if msg.get("method") == "Debugger.paused":
+        callFrames = msg["params"]["callFrames"]
+        topFrame = callFrames[0]
+        callFrameId = topFrame["callFrameId"]
+        
+        # In fu, let's find all local variable names:
+        eval_res = send("Debugger.evaluateOnCallFrame", {
+            "callFrameId": callFrameId,
+            "expression": """
+                (function() {
+                    // Try to inspect the code being passed to new Function
+                    // fu usually compiles template and returns new Function(code)
+                    // Let's inspect arguments and local variables
+                    const res = {};
+                    for (let i = 0; i < arguments.length; i++) {
+                        res['arg_' + i] = typeof arguments[i] === 'string' ? arguments[i].substring(0, 100) : arguments[i];
+                    }
+                    return res;
+                })()
+            """,
+            "returnByValue": True
+        })
+        print("Scope in top frame:", json.dumps(eval_res.get("result", {}).get("result", {}).get("value"), indent=2))
+
+        # Also let's inspect the exception itself:
+        exc = msg["params"]["data"]
+        print("Exception object:", exc)
+        break
+
+ws.close()
+proc.kill()

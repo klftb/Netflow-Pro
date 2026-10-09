@@ -1,0 +1,17 @@
+[Unit]
+Description=Akvorado-NetFlow High-Performance Analytics Backend API
+After=network.target clickhouse-server.service docker.service
+Wants=clickhouse-server.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/flow-backend
+ExecStart=/opt/flow-backend/bin/flow-server -port 8080 -ch-addr 127.0.0.1:9000
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

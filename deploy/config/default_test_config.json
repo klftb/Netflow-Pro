@@ -1,0 +1,198 @@
+{
+  "version": "1.3",
+  "exported_at": "2026-09-28 12:00:00",
+  "accounts": {
+    "users": [
+      {
+        "username": "admin",
+        "display_name": "系统管理员",
+        "role": "admin",
+        "auth_type": "local",
+        "password_hash": "$2a$10$R6hiSs2k2rXCIs5ZE/H6V..v548Joo6PiSWbG4syyw5mSdDw83JT."
+      },
+      {
+        "username": "netops_test",
+        "display_name": "网络运维测试员",
+        "role": "admin",
+        "auth_type": "local",
+        "password": "admin"
+      },
+      {
+        "username": "noc_viewer",
+        "display_name": "NOC 监控值班员(只读)",
+        "role": "viewer",
+        "auth_type": "local",
+        "password": "admin"
+      }
+    ],
+    "ldap_enabled": false,
+    "ldap_url": "ldap://10.30.1.20:389",
+    "ldap_base_dn": "DC=example,DC=com",
+    "ldap_bind_dn": "CN=ldap_reader,OU=ServiceAccounts,DC=example,DC=com",
+    "ldap_bind_password": "",
+    "ldap_user_filter": "(&(objectClass=user)(sAMAccountName=%s))",
+    "ldap_default_role": "admin"
+  },
+  "snmp_api": {
+    "librenms_url": "http://10.30.255.225/api/v0",
+    "librenms_token": "",
+    "netbox_url": "http://netbox.example.com/api/",
+    "netbox_token": "",
+    "port_scan_threshold": 100,
+    "silence_minutes": 5,
+    "exporters": [
+      {
+        "exporter_ip": "10.23.251.238",
+        "device_name": "FG-200F-Core-FW",
+        "device_type": "Firewall",
+        "description": "总部核心出口防火墙 (FortiGate 200F)",
+        "location": "总部机房 A01 机柜",
+        "admin": "Network-SecTeam",
+        "snmp_community": "public",
+        "snmp_version": "2c"
+      },
+      {
+        "exporter_ip": "10.3.1.1",
+        "device_name": "CQ-USG6600E-FW01",
+        "device_type": "Firewall",
+        "description": "重庆 IDC 边界双活主防火墙 (Huawei USG6600E Node-A)",
+        "location": "重庆 IDC B01 机柜",
+        "admin": "CQ-NetOps",
+        "snmp_community": "public",
+        "snmp_version": "2c"
+      },
+      {
+        "exporter_ip": "10.3.1.2",
+        "device_name": "CQ-USG6600E-FW02",
+        "device_type": "Firewall",
+        "description": "重庆 IDC 边界双活备防火墙 (Huawei USG6600E Node-B)",
+        "location": "重庆 IDC B02 机柜",
+        "admin": "CQ-NetOps",
+        "snmp_community": "public",
+        "snmp_version": "2c"
+      },
+      {
+        "exporter_ip": "10.3.251.1",
+        "device_name": "CQ-Core-SW-CE6850",
+        "device_type": "Core Switch",
+        "description": "重庆 IDC 万兆核心交换机 (Huawei CloudEngine 6850)",
+        "location": "重庆 IDC A01 机柜",
+        "admin": "CQ-NetOps",
+        "snmp_community": "public",
+        "snmp_version": "2c"
+      }
+    ],
+    "interfaces": [
+      {
+        "exporter_ip": "10.23.251.238",
+        "if_index": 5,
+        "if_name": "port1",
+        "if_descr": "WAN1-ChinaTelecom-1Gbps",
+        "if_alias": "Telecom_DIA_Line",
+        "display_name": "port1 (电信千兆互联网专线)",
+        "speed_mbps": 1000
+      },
+      {
+        "exporter_ip": "10.3.1.1",
+        "if_index": 10,
+        "if_name": "10GE1/0/1",
+        "if_descr": "To-Core-Switch-Uplink-A",
+        "if_alias": "Core_Interconnect_A",
+        "display_name": "10GE1/0/1 (主墙万兆上联口)",
+        "speed_mbps": 10000
+      },
+      {
+        "exporter_ip": "10.3.1.2",
+        "if_index": 10,
+        "if_name": "10GE1/0/1",
+        "if_descr": "To-Core-Switch-Uplink-B",
+        "if_alias": "Core_Interconnect_B",
+        "display_name": "10GE1/0/1 (备墙万兆上联口)",
+        "speed_mbps": 10000
+      }
+    ],
+    "app_mappings": [
+      { "proto": 6, "port": 80, "app_name": "HTTP", "category": "Web" },
+      { "proto": 6, "port": 443, "app_name": "HTTPS", "category": "Web" },
+      { "proto": 17, "port": 443, "app_name": "QUIC/HTTP3", "category": "Web" },
+      { "proto": 6, "port": 22, "app_name": "SSH", "category": "Remote Admin" },
+      { "proto": 6, "port": 3389, "app_name": "RDP", "category": "Remote Admin" },
+      { "proto": 17, "port": 53, "app_name": "DNS", "category": "Network Core" },
+      { "proto": 6, "port": 3306, "app_name": "MySQL", "category": "Database" },
+      { "proto": 6, "port": 5432, "app_name": "PostgreSQL", "category": "Database" },
+      { "proto": 6, "port": 6379, "app_name": "Redis", "category": "Cache/DB" },
+      { "proto": 6, "port": 9000, "app_name": "ClickHouse", "category": "Analytics DB" },
+      { "proto": 6, "port": 9092, "app_name": "Kafka", "category": "MQ/Streaming" },
+      { "proto": 17, "port": 2055, "app_name": "NetFlow", "category": "Telemetry" }
+    ]
+  },
+  "ipam": {
+    "subnets": [
+      {
+        "group_id": 101,
+        "group_name": "研发办公网段 (R&D Subnet)",
+        "cidr": "10.23.10.0/24",
+        "department": "研发中心",
+        "source": "Local"
+      },
+      {
+        "group_id": 102,
+        "group_name": "芯片设计 EDA 计算集群",
+        "cidr": "10.3.11.0/24",
+        "department": "IC 设计部",
+        "source": "Local"
+      },
+      {
+        "group_id": 103,
+        "group_name": "数据中心基础架构网段",
+        "cidr": "10.30.255.0/24",
+        "department": "IT 基础架构部",
+        "source": "Local"
+      },
+      {
+        "group_id": 104,
+        "group_name": "防火墙与核心网管互联段",
+        "cidr": "10.23.251.0/24",
+        "department": "网络运维部",
+        "source": "Local"
+      }
+    ],
+    "hosts": [
+      {
+        "ip": "10.3.11.78",
+        "hostname": "cqidc-netflow-01",
+        "dns_name": "netflow01.example.local",
+        "description": "NetFlow Pro 流量分析主节点",
+        "source": "Local"
+      },
+      {
+        "ip": "10.30.255.225",
+        "hostname": "librenms-master",
+        "dns_name": "librenms.example.local",
+        "description": "LibreNMS SNMP 监控中心",
+        "source": "Local"
+      },
+      {
+        "ip": "10.23.251.238",
+        "hostname": "fg200f-core-fw",
+        "dns_name": "fw01.example.local",
+        "description": "核心出口防火墙 FortiGate-200F",
+        "source": "Local"
+      },
+      {
+        "ip": "10.3.1.1",
+        "hostname": "usg6600e-fw-nodeA",
+        "dns_name": "usg01.example.local",
+        "description": "华为 USG6600E 边界双活主墙",
+        "source": "Local"
+      },
+      {
+        "ip": "10.3.1.2",
+        "hostname": "usg6600e-fw-nodeB",
+        "dns_name": "usg02.example.local",
+        "description": "华为 USG6600E 边界双活备墙",
+        "source": "Local"
+      }
+    ]
+  }
+}

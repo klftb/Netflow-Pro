@@ -1,0 +1,23 @@
+PKG_CONFIG?=pkg-config
+HAS_JSON=$(shell $(PKG_CONFIG) --exists json-c; echo $$?)
+ifeq ($(HAS_JSON), 0)
+	JSON_INC = $(shell $(PKG_CONFIG) --cflags json-c)
+	JSON_LIB = $(shell $(PKG_CONFIG) --libs json-c)
+else
+	JSON_HOME=${PWD}/../../third-party/json-c
+	JSON_INC=-I$(JSON_HOME)
+	JSON_LIB=$(JSON_HOME)/.libs/libjson-c.a
+endif
+
+NDPI_HOME = ../../../nDPI
+NDPI_LIB = $(NDPI_HOME)/src/lib/libndpi.a
+NDPI_INC = -I$(NDPI_HOME)/src/include -I$(NDPI_HOME)/src/lib/third_party/include
+
+CXXFLAGS?=-O3 -march=native -Wall -Wextra
+CXXFLAGS+=-std=c++11
+
+json2tlv: json2tlv.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ json2tlv.cpp $(JSON_INC) $(NDPI_INC) -Iinclude $(JSON_LIB) $(NDPI_LIB) -lzmq -lm
+
+clean:
+	rm -f json2tlv
